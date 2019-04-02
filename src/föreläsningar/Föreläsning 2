@@ -1,0 +1,11 @@
+Blockering = En tråd försöker nå resurser som används av en annan tråd, tråden är blockerad.
+
+Skillnad Concurrency & Multitasking:
+
+Skillnaden handlar om vilken nivå.
+
+Multitasking:
+	Flera program kan vara igång samtidigt på din dator.
+	Ex. Man kan använda Word & Excel samtidigt. 
+Concurrency:
+	Olika delar i ett program kan köras samtidigt.
