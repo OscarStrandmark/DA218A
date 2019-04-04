@@ -3,7 +3,9 @@ package Assignments.A1;
 import java.awt.Polygon;
 
 import Assignments.A1.threads.Display;
+import Assignments.A1.threads.Game;
 import Assignments.A1.threads.Music;
+import Assignments.A1.threads.Triangle;
 
 public class Controller {
 	
@@ -16,8 +18,8 @@ public class Controller {
 	
 	private Music threadMusic;
 	private Display threadDisplay;
-	private Class threadTriangle; //TODO: ÄNDRA TILL RÄTT KLASS
-	private Class threadGame; //TODO: ÄNDRA TILL RÄTT KLASS
+	private Triangle threadTriangle;
+	private Game threadGame;
 	
 	public Controller() {
 		gui = new GUI(this);
@@ -28,21 +30,32 @@ public class Controller {
 	
 	private void initThreads() {
 		threadDisplay = new Display(this);
+		threadTriangle = new Triangle(this);
+		threadMusic = new Music(this);
+		threadGame = new Game(this);
+	}
+	
+	public void open() {
+		threadMusic.open();
+	}
+	
+	public void setLoadedFile(String s) {
+		gui.setLoadedFile(s);
 	}
 	
 	public void start(int threadType) {
 		switch (threadType) {
 		case 1:
-			
+			threadMusic.play();
 			break;
 		case 2:
 			threadDisplay.play();
 			break;
 		case 3:
-			
+			threadTriangle.play();
 			break;
 		case 4: 
-			
+			threadGame.play();
 			break;
 		}
 	}
@@ -50,16 +63,16 @@ public class Controller {
 	public void stop(int threadType) {
 		switch (threadType) {
 		case 1:
-			
+			threadMusic.pause();
 			break;
 		case 2:
 			threadDisplay.pause();
 			break;
 		case 3:
-			
+			threadTriangle.pause();
 			break;
 		case 4: 
-			
+			threadGame.pause();
 			break;
 		}
 	}
@@ -70,5 +83,9 @@ public class Controller {
 	
 	public void drawTriangle(Polygon p) {
 		gui.drawTriangle(p);
+	}
+
+	public int getDifficulty() {
+		return gui.getDifficulty();
 	}
 }

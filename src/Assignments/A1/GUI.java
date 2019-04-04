@@ -1,16 +1,29 @@
 package Assignments.A1;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Polygon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URL;
 
-import javax.swing.*;
-import javax.swing.border.*;
+import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.border.Border;
 
 /**
  * The GUI for assignment 1, DualThreads
  */
-public class GUI {
+public class GUI implements ActionListener {
 	/**
 	 * These are the components you need to handle. You have to add listeners and/or
 	 * code
@@ -30,9 +43,10 @@ public class GUI {
 	private JLabel lblPlaying; // Playing text
 	private JLabel lblAudio; // Audio file
 	private JTextArea txtHits; // Dispaly hits
-	private JComboBox cmbSkill; // Skill combo box, needs to be filled in
+	private JComboBox<String> cmbSkill; // Skill combo box, needs to be filled in
 
 	private Controller controller;
+	private ImageIcon icon;
 	/**
 	 * Constructor
 	 */
@@ -148,13 +162,19 @@ public class GUI {
 		JLabel lblHits = new JLabel("Hits:");
 		lblHits.setBounds(240, 20, 50, 13);
 		pnlCatchme.add(lblHits);
-		cmbSkill = new JComboBox(); // Need to be filled in with data
+		cmbSkill = new JComboBox<String>(); // Need to be filled in with data
+		cmbSkill.addItem("200ms");
+		cmbSkill.addItem("400ms");
+		cmbSkill.addItem("600ms");
+		cmbSkill.addItem("800ms");
+		cmbSkill.addItem("1000ms");
 		cmbSkill.setBounds(19, 41, 61, 23);
 		pnlCatchme.add(cmbSkill);
 		btnGo = new JButton("GO");
 		btnGo.setBounds(129, 41, 75, 23);
 		pnlCatchme.add(btnGo);
 		txtHits = new JTextArea(); // Needs to be updated
+		txtHits.setEditable(false);
 		txtHits.setBounds(233, 41, 71, 23);
 		Border b40 = BorderFactory.createLineBorder(Color.black);
 		txtHits.setBorder(b40);
@@ -166,56 +186,72 @@ public class GUI {
 		pnlCatchme.add(pnlGame);
 		frame.add(pnlCatchme);
 
+		try {
+			URL url = new URL("https://i.imgur.com/5Xgjlih.png");
+			icon = new ImageIcon(url);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
 		// Adding listener to buttons
-		ButtonListener listener = new ButtonListener();
-		btnDisplay.addActionListener(listener);
-		btnDStop.addActionListener(listener);
-		btnTriangle.addActionListener(listener);
-		btnTStop.addActionListener(listener);
-		btnOpen.addActionListener(listener);
-		btnPlay.addActionListener(listener);
-		btnStop.addActionListener(listener);
-		btnGo.addActionListener(listener);
+		btnDisplay.addActionListener(this);
+		btnDStop.addActionListener(this);
+		btnTriangle.addActionListener(this);
+		btnTStop.addActionListener(this);
+		btnOpen.addActionListener(this);
+		btnPlay.addActionListener(this);
+		btnStop.addActionListener(this);
+		btnGo.addActionListener(this);
 
 	}
 
 	public void setDisplayText(String txt, int x, int y) {
 		Graphics g = pnlMove.getGraphics();
-		g.clearRect(1, 1, 198, 198);
-		g.drawChars(txt.toCharArray(), 0, txt.length(), x, y);
+		g.clearRect(1, 1, 198, 198); //Clear the window
+		g.drawChars(txt.toCharArray(), 0, txt.length(), x, y); //Draw the text
 	}
 	
 	public void drawTriangle(Polygon p) {
 		Graphics g = pnlRotate.getGraphics();
-		g.drawPolygon(p);
+		g.clearRect(1, 1, 198, 198); //Clear the window
+		g.drawPolygon(p); //Draw triangle
 	}
 	
-	private class ButtonListener implements ActionListener {
-		public void actionPerformed(ActionEvent e) {
-			if (e.getSource() == btnDisplay) {
-				controller.start(Controller.DISPLAY);
-			}
-			if (e.getSource() == btnDStop) {
-				controller.stop(Controller.DISPLAY);
-			}
-			if (e.getSource() == btnTriangle) {
+	public void setLoadedFile(String s) {
+		lblAudio.setText(s);
+	}
 
-			}
-			if (e.getSource() == btnTStop) {
-
-			}
-			if (e.getSource() == btnOpen) {
-
-			}
-			if (e.getSource() == btnPlay) {
-
-			}
-			if (e.getSource() == btnStop) {
-
-			}
-			if (e.getSource() == btnGo) {
-
-			}
+	public int getDifficulty() {
+		int i = cmbSkill.getSelectedIndex();
+		String skill = cmbSkill.getModel().getElementAt(i).substring(0, 3);
+		System.out.println(skill);
+		return Integer.parseInt(skill);
+	}
+	
+	public void actionPerformed(ActionEvent e) {
+		if (e.getSource() == btnDisplay) {
+			controller.start(Controller.DISPLAY);
 		}
+		if (e.getSource() == btnDStop) {
+			controller.stop(Controller.DISPLAY);
+		}
+		if (e.getSource() == btnTriangle) {
+			controller.start(Controller.TRIANGLE);
+		}
+		if (e.getSource() == btnTStop) {
+			controller.stop(Controller.TRIANGLE);
+		}
+		if (e.getSource() == btnOpen) {
+			controller.open();
+		}
+		if (e.getSource() == btnPlay) {
+			
+		}
+		if (e.getSource() == btnStop) {
+			
+		}
+		if (e.getSource() == btnGo) {
+			controller.start(Controller.GAME);
+		}		
 	}
 }
