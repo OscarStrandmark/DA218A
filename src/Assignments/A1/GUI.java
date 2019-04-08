@@ -3,13 +3,10 @@ package Assignments.A1;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.Polygon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.URL;
 
-import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -185,23 +182,12 @@ public class GUI implements ActionListener {
 		pnlGame.setBorder(b41);
 		pnlCatchme.add(pnlGame);
 		frame.add(pnlCatchme);
-
-		try {
-			URL url = new URL("https://i.imgur.com/5Xgjlih.png");
-			icon = new ImageIcon(url);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 		
 		// Adding listener to buttons
 		btnDisplay.addActionListener(this);
 		btnDStop.addActionListener(this);
 		btnTriangle.addActionListener(this);
 		btnTStop.addActionListener(this);
-		btnOpen.addActionListener(this);
-		btnPlay.addActionListener(this);
-		btnStop.addActionListener(this);
-		btnGo.addActionListener(this);
 
 	}
 
@@ -217,17 +203,6 @@ public class GUI implements ActionListener {
 		g.drawPolygon(p); //Draw triangle
 	}
 	
-	public void setLoadedFile(String s) {
-		lblAudio.setText(s);
-	}
-
-	public int getDifficulty() {
-		int i = cmbSkill.getSelectedIndex();
-		String skill = cmbSkill.getModel().getElementAt(i).substring(0, 3);
-		System.out.println(skill);
-		return Integer.parseInt(skill);
-	}
-	
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == btnDisplay) {
 			controller.start(Controller.DISPLAY);
@@ -240,18 +215,6 @@ public class GUI implements ActionListener {
 		}
 		if (e.getSource() == btnTStop) {
 			controller.stop(Controller.TRIANGLE);
-		}
-		if (e.getSource() == btnOpen) {
-			controller.open();
-		}
-		if (e.getSource() == btnPlay) {
-			
-		}
-		if (e.getSource() == btnStop) {
-			
-		}
-		if (e.getSource() == btnGo) {
-			controller.start(Controller.GAME);
-		}		
+		}	
 	}
 }
