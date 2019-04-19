@@ -5,16 +5,35 @@ public class CharacterBuffer {
 	private char character;
 	
 	private boolean HasCharacter = false;
-
-	public synchronized char getSyncCharacter() throws InterruptedException {
+	private GUI gui;
+	
+	public CharacterBuffer(GUI gui) {
+		this.gui = gui;
+	}
+	
+	public synchronized char getSyncCharacter() {
 		if(!HasCharacter) {
-			wait();
+			try {
+				gui.readWait();
+				wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 		HasCharacter = false;
+		notifyAll();
 		return character;
 	}
 	
 	public synchronized void setSyncCharacter(char character) {
+		if(HasCharacter) {
+			try {
+				gui.writeWait();
+				wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
 		this.character = character;
 		HasCharacter = true;
 		notifyAll();
