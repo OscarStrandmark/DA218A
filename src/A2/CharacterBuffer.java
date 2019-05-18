@@ -1,4 +1,4 @@
-package Assignments.A2;
+package A2;
 
 public class CharacterBuffer {
 

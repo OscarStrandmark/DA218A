@@ -1,4 +1,4 @@
-package Assignments.A3;
+package A3;
 
 import java.awt.Color;
 import java.awt.event.ActionEvent;
