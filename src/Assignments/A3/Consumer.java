@@ -1,35 +1,45 @@
 package Assignments.A3;
 
+import java.util.ArrayList;
+
 import javax.swing.JCheckBox;
+import javax.swing.SwingUtilities;
 
 public class Consumer extends Thread {
 
-	private int    itemsMax = 50;
-	private double weightMax = 50;
-	private double volumeMax = 50;
-	
-	private int    items;
-	private double weight;
-	private double volume;
-	
-	private boolean consuming = false;
-	
-	private JCheckBox continue_loading;
+	private static final long SLEEP = 1000;
 
+	//LIMITS 
+	private static final int     MAX_ITEMS = 50; 
+	private static final double MAX_WEIGHT = 100;
+	private static final double MAX_VOLUME = 75;
+	
+	private static final long TAKE_DELAY = 1000;
+	private static final long FULL_SLEEP = 5000;
+	//CURRENT VALUES
+	private int     items = 0;
+	private double weight = 0;
+	private double volume = 0;
+	
+	private JCheckBox box;
+	
 	private Controller controller;
 	
-	private String name;
+	private boolean consuming;
 	
-	public Consumer(String name,Controller controller, JCheckBox chkBox) {
-		this.continue_loading = chkBox;
+	private ArrayList<FoodItem> list;
+	
+	public Consumer(Controller controller, String name, JCheckBox box) {
+		this.list = new ArrayList<FoodItem>();
 		this.controller = controller;
-		this.name = name;
+		this.box = box;
+		consuming = false;
+		setName(name);
 		start();
 	}
-
+	
 	public void startConsuming() {
 		consuming = true;
-		System.out.println("consuming");
 	}
 	
 	public void stopConsuming() {
@@ -37,47 +47,46 @@ public class Consumer extends Thread {
 	}
 	
 	public void run() {
-		FoodItem food = null;
-		String itemList = "";
-		String status = "";
+		String listString = "";
 		while(true) {
+			try {
+				Thread.sleep(SLEEP);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			while(consuming) {
-				while ((items < itemsMax && weight < weightMax && volume < volumeMax)) { //not full
-					try { food = controller.storageGet(); } catch (InterruptedException e) {e.printStackTrace();}
-					controller.updateStatusBar();
-					items++;
-					weight += food.getWeight();
-					volume += food.getVolume();
-					itemList += food.getName() + "\n";
-					controller.setValues(name, items, weight, volume, status, itemList);
-				} 
-				
-				while(!(items < itemsMax && weight < weightMax && volume < volumeMax) && !continue_loading.isSelected()) {
+				list = new ArrayList<FoodItem>();
+				controller.updateLabels(getName(), 0, 0, 0, "", "");
+				while((items < MAX_ITEMS) && (weight < MAX_WEIGHT) && (volume < MAX_VOLUME)) { //while not full on items, weight or volume
 					try {
-						Thread.sleep(10000);
-					} catch (InterruptedException e) {
+						FoodItem item = controller.storageGet();
+						
+						if(item != null) {
+							list.add(item);
+							
+							listString += item.getName() + "\n";
+							volume += item.getVolume();
+							weight += item.getWeight();
+							items++;
+							controller.updateLabels(getName(), items, weight, volume, "", listString);	//Borde hanteras av UI-tråd, men jag är lat.								
+						}
+						Thread.sleep(TAKE_DELAY);
+					} catch (Exception e) {
 						e.printStackTrace();
 					}
-				}
-				
-				if(continue_loading.isSelected()) {
-					try {
-						Thread.sleep(5000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-					
-					items = 0;
-					weight = 0;
-					volume = 0;
-					itemList = "";
-					status = "Idle";
-					controller.setValues(name, items, weight, volume, status, itemList);
-				}
+				}				
 				try {
-					Thread.sleep(1000);
+					Thread.sleep(FULL_SLEEP);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
+				}
+				
+				while(!box.isSelected()) {
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		}

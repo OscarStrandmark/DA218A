@@ -1,8 +1,18 @@
 package Assignments.A3;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 
 /**
  * The GUI for assignment 3
@@ -36,7 +46,7 @@ public class GUI {
 	private JTextArea lstIca; // The cargo list
 	private JButton btnIcaStart; // The buttons
 	private JButton btnIcaStop;
-	public JCheckBox chkIcaCont; // Continue checkbox
+	private JCheckBox chkIcaCont; // Continue checkbox
 	// Data for consumer COOP
 	private JLabel lblCoopItems;
 	private JLabel lblCoopWeight;
@@ -45,7 +55,7 @@ public class GUI {
 	private JTextArea lstCoop; // The cargo list
 	private JButton btnCoopStart; // The buttons
 	private JButton btnCoopStop;
-	public JCheckBox chkCoopCont; // Continue checkbox
+	private JCheckBox chkCoopCont; // Continue checkbox
 	// Data for consumer CITY GROSS
 	private JLabel lblCGItems;
 	private JLabel lblCGWeight;
@@ -54,32 +64,50 @@ public class GUI {
 	private JTextArea lstCG; // The cargo list
 	private JButton btnCGStart; // The buttons
 	private JButton btnCGStop;
-	public JCheckBox chkCGCont; // Continue checkbox
+	private JCheckBox chkCGCont; // Continue checkbox
 
 	private Controller controller;
-	
+
 	/**
 	 * Constructor, creates the window
-	 * @param controller 
 	 */
-	public GUI(Controller controller) {
+	public GUI(Controller controller, int storageSize) {
 		this.controller = controller;
 		Start();
+		bufferStatus.setMaximum(storageSize);
 	}
 
-	public void setValues(String name, int items, double weight, double volume, String status, String itemList) {
-		
-		
-		if(name.equals("ICA")) {
-			lblIcaItems.setText(items + "");
-			lblIcaWeight.setText(weight + "");;
-			lblIcaVolume.setText(volume + "");;
-			lblIcaStatus.setText("Status: " + status);
-			lstIca.setText(itemList);
-		} else if(name.equals("COOP")) {
-			
-		} else if(name.equals("CG"))   {
-			
+	public void setStored(int i) {
+		bufferStatus.setValue(i);
+	}
+
+	public JCheckBox[] getCheckBoxes() {
+		return new JCheckBox[] {chkIcaCont,chkCoopCont,chkCGCont};
+	}
+	
+	public void setConsumerLbls(String name, int items, double weight, double volume, String status, String listString) {
+		switch (name) {
+		case "ICA":
+			lblIcaItems.setText("" + items);
+			lblIcaWeight.setText("" + weight);
+			lblIcaVolume.setText("" + volume);
+			lblIcaStatus.setText(status);
+			lstIca.setText(listString);
+			break;
+		case "COOP":
+			lblCoopItems.setText("" + items);
+			lblCoopWeight.setText("" + weight);
+			lblCoopVolume.setText("" + volume);
+			lblCoopStatus.setText(status);
+			lstCoop.setText(listString);
+			break;
+		case "CITY GROSS":
+			lblCGItems.setText("" + items);
+			lblCGWeight.setText("" + weight);
+			lblCGVolume.setText("" + volume);
+			lblCGStatus.setText(status);
+			lstCG.setText(listString);
+			break;
 		}
 	}
 	
@@ -93,7 +121,6 @@ public class GUI {
 		frame.setLayout(null);
 		frame.setTitle("Food Supply System");
 		InitializeGUI(); // Fill in components
-		initButtons();
 		frame.setVisible(true);
 		frame.setResizable(false); // Prevent user from change size
 		frame.setLocationRelativeTo(null); // Start middle screen
@@ -114,7 +141,7 @@ public class GUI {
 		bufferStatus.setBorder(BorderFactory.createLineBorder(Color.black));
 		bufferStatus.setForeground(Color.GREEN);
 		pnlBuffer.add(bufferStatus);
-		JLabel lblmax = new JLabel("Max capacity: " + controller.storageMax); 
+		JLabel lblmax = new JLabel("Max capacity (items):");
 		lblmax.setBounds(10, 42, 126, 13);
 		pnlBuffer.add(lblmax);
 		frame.add(pnlBuffer);
@@ -358,32 +385,116 @@ public class GUI {
 
 		// Add consumer panel to frame
 		frame.add(pnlCons);
+
+		ButtonListener listener = new ButtonListener();
+		btnStartS.addActionListener(listener); // Button start Scan
+		btnStopS.addActionListener(listener); // Button stop Scan
+		btnStartA.addActionListener(listener); // Button start Arla
+		btnStopA.addActionListener(listener); // Button stop Arla
+		btnStartX.addActionListener(listener); // Button start AxFood
+		btnStopX.addActionListener(listener); // Button stop AxFood
+		
+		btnIcaStart.addActionListener(listener);
+		btnIcaStop.addActionListener(listener);
+		btnCoopStart.addActionListener(listener);
+		btnCoopStop.addActionListener(listener);
+		btnCGStart.addActionListener(listener);
+		btnCGStop.addActionListener(listener);
+		
+		btnStopS.setEnabled(false);
+		btnStopA.setEnabled(false);
+		btnStopX.setEnabled(false);
+		btnIcaStop.setEnabled(false);
+		btnCoopStop.setEnabled(false);
+		btnCGStop.setEnabled(false);
+		
+		lblStatusA.setText("IDLE");
+		lblStatusS.setText("IDLE");
+		lblStatusX.setText("IDLE");
 	}
-	
-	private void initButtons() {
-		btnStartS.addActionListener(e -> controller.p1.startProducing());
-		btnStopS.addActionListener(e -> controller.p1.stopProducing());
-		
-		btnStartA.addActionListener(e -> controller.p2.startProducing());
-		btnStopA.addActionListener(e -> controller.p2.stopProducing());
-		
-		btnStartX.addActionListener(e -> controller.p3.startProducing());
-		btnStopX.addActionListener(e -> controller.p3.stopProducing());
-		
-		
-		btnIcaStart.addActionListener(e -> controller.c1.startConsuming());
-		btnIcaStop.addActionListener(e -> controller.c1.stopConsuming());
-		
-		btnCoopStart.addActionListener(e -> controller.c2.startConsuming());
-		btnCoopStop.addActionListener(e -> controller.c2.stopConsuming());
-		
-		btnCGStart.addActionListener(e -> controller.c3.startConsuming());
-		btnCGStop.addActionListener(e -> controller.c3.stopConsuming());
-	}
-	
-	public void updateStatusBar(int max, int current) {
-		bufferStatus.setMinimum(0);
-		bufferStatus.setMaximum(max);
-		bufferStatus.setValue(current);
+
+	private class ButtonListener implements ActionListener {
+		public void actionPerformed(ActionEvent e) {
+			
+			if(e.getSource() == btnStartS) {
+				controller.startProducer(1);
+				btnStartS.setEnabled(false);
+				btnStopS.setEnabled(true);
+				lblStatusS.setText("Producing");
+			}
+			
+			if(e.getSource() == btnStopS) {
+				controller.stopProducer(1);
+				btnStartS.setEnabled(true);
+				btnStopS.setEnabled(false);
+				lblStatusS.setText("Stopped");
+			}
+
+			if(e.getSource() == btnStartA) {
+				controller.startProducer(2);
+				btnStartA.setEnabled(false);
+				btnStopA.setEnabled(true);
+				lblStatusA.setText("Producing");
+
+			}
+			
+			if(e.getSource() == btnStopA) {
+				controller.stopProducer(2);
+				btnStartA.setEnabled(true);
+				btnStopA.setEnabled(false);
+				lblStatusA.setText("Stopped");
+			}
+			
+			if(e.getSource() == btnStartX) {
+				controller.startProducer(3);
+				btnStartX.setEnabled(false);
+				btnStopX.setEnabled(true);
+				lblStatusX.setText("Producing");
+			}
+
+			if(e.getSource() == btnStopX) {
+				controller.stopProducer(3);
+				btnStartX.setEnabled(true);
+				btnStopX.setEnabled(false);
+				lblStatusX.setText("Stopped");
+			}
+			
+			if(e.getSource() == btnIcaStart) {
+				controller.startConsumer(1);
+				btnIcaStop.setEnabled(true);
+				btnIcaStart.setEnabled(false);
+			}
+			
+			if(e.getSource() == btnIcaStop) {
+				controller.stopConsumer(1);
+				btnIcaStop.setEnabled(false);
+				btnIcaStart.setEnabled(true);
+
+			}
+			
+			if(e.getSource() == btnCoopStart) {
+				controller.startConsumer(2);
+				btnCoopStop.setEnabled(true);
+				btnCoopStart.setEnabled(false);
+			}
+			
+			if(e.getSource() == btnCoopStop) {
+				controller.stopConsumer(2);
+				btnCoopStop.setEnabled(false);
+				btnCoopStart.setEnabled(true);
+			}
+			
+			if(e.getSource() == btnCGStart) {
+				controller.startConsumer(3);
+				btnCGStop.setEnabled(true);
+				btnCGStart.setEnabled(false);
+			}
+			
+			if(e.getSource() == btnCGStop) {
+				controller.stopConsumer(2);
+				btnCGStop.setEnabled(false);
+				btnCGStart.setEnabled(true);
+			}
+		}
 	}
 }

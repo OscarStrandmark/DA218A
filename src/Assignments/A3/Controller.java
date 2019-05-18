@@ -1,96 +1,133 @@
 package Assignments.A3;
 
+import java.util.NoSuchElementException;
 import java.util.concurrent.Semaphore;
+
+import javax.swing.JCheckBox;
 
 public class Controller {
 
-	private FoodItem[] foods = new FoodItem[10];
-	
-	public Producer p1; //Scan
-	public Producer p2; //Arla
-	public Producer p3; //AxFood
-	
-	public static final long DELAY_PRODUCERS = 750;
-	
-	public Consumer c1; //ICA
-	public Consumer c2; //COOP
-	public Consumer c3; //CITY GROSS
-	
-	private Buffer<FoodItem> storage;
-	public int storageMax = 50;
-	
-	private Semaphore semaphore;
-	
-	private GUI gui;
-	
-	public Controller() {
-		this.gui = new GUI(this);
-		initFoods();
+	private FoodItem[] items = { new FoodItem("Milk", 1, 1), new FoodItem("Cream", 0.6, 0.1),
+			new FoodItem("Youghurt", 1.1, 0.5), new FoodItem("Butter", 2.34, 0.66), new FoodItem("Flour", 3.4, 1.2),
+			new FoodItem("Sugar", 3.7, 1.8), new FoodItem("Salt", 1.55, 0.27), new FoodItem("Almonds", 0.6, 0.19),
+			new FoodItem("Bread", 0.75, 1.98), new FoodItem("Donuts", 1.4, 0.5), new FoodItem("Jam", 1.3, 1.5),
+			new FoodItem("Ham", 4.1, 2.5), new FoodItem("Chicken", 6.8, 3.9), new FoodItem("Salad", 0.87, 0.55),
+			new FoodItem("Orange", 2.46, 0.29), new FoodItem("Apple", 2.44, 0.4), new FoodItem("Pear", 1.3, 0.77),
+			new FoodItem("Soda", 2.98, 2.0), new FoodItem("Beer", 3.74, 1.5), new FoodItem("Hotdogs", 2.0, 1.38) };
 
-		semaphore = new Semaphore(3, true);
+	private Producer p1; // SCAN
+	private Producer p2; // ARLA
+	private Producer p3; // AXFOOD
+
+	private Consumer c1; // ICA
+	private Consumer c2; // COOP
+	private Consumer c3; // CITY GROSS
+
+	private Semaphore mutex;
+
+	private Buffer<FoodItem> storage;
+	private static final int MAX_SIZE = 50;
+	private GUI gui;
+
+	public Controller() {
+		gui = new GUI(this, MAX_SIZE);
+		mutex = new Semaphore(1, true);
 		storage = new Buffer<FoodItem>();
+
+		p1 = new Producer(this, "SCAN", items);
+		p2 = new Producer(this, "ARLA", items);
+		p3 = new Producer(this, "AXFOOD", items);
+
+		JCheckBox[] boxes = gui.getCheckBoxes();
 		
-		p1 = new Producer(foods,this);
-		p2 = new Producer(foods,this);
-		p3 = new Producer(foods,this);
-		
-		c1 = new Consumer("ICA" ,this,gui.chkIcaCont);
-		c2 = new Consumer("COOP",this,gui.chkCoopCont);
-		c3 = new Consumer("CG"  ,this,gui.chkCGCont);
-		
+		c1 = new Consumer(this, "ICA", boxes[0]);
+		c2 = new Consumer(this, "COOP", boxes[1]);
+		c3 = new Consumer(this, "CITY GROSS", boxes[2]);
 	}
-	
-	private void initFoods() {
-		foods[0] = new FoodItem("Water",1,1);
-		foods[1] = new FoodItem("Flour",0.2,1);
-		foods[2] = new FoodItem("Apple",1,1.5);
-		foods[3] = new FoodItem("Salt",1.4,1.56);
-		foods[4] = new FoodItem("Pepper",1.11,0.27);
-		foods[6] = new FoodItem("Chicken",1.77,1.55);
-		foods[7] = new FoodItem("Beef",1.8,2);
-		foods[8] = new FoodItem("Nuts",4.1,2.5);
-		foods[9] = new FoodItem("Milk",0.6,0.1);
-	}
-	
-	public synchronized void updateStatusBar() {
-		gui.updateStatusBar(storageMax, storage.size());
-	}
-	
-	public synchronized void setValues(String name, int items, double weight, double volume, String status, String itemList) {
-		gui.setValues(name, items, weight, volume, status, itemList);
-	}
-	
-	public void storagePut(FoodItem food) {
+
+	public void storagePut(FoodItem item) throws InterruptedException {
 		try {
-			semaphore.acquire();
-		} catch (Exception e) {
-			e.printStackTrace();
+			mutex.acquire();
+			storage.put(item);
+			gui.setStored(storage.size());
+		} finally {
+			mutex.release();
 		}
-		
-		storage.put(food);
-		
-		gui.updateStatusBar(storageMax, storage.size());
-		semaphore.release();
+	}
+
+	public FoodItem storageGet() throws InterruptedException, NoSuchElementException {
+		FoodItem item;
+		try {
+			mutex.acquire();
+			item = storage.get();
+			gui.setStored(storage.size());
+		} finally {
+			mutex.release();
+		}
+		return item;
 	}
 	
-	public FoodItem storageGet() throws InterruptedException {
-		semaphore.acquire();
-		
-		while(storage.size() == 0) {
-			semaphore.release();
-			Thread.sleep(3000);
-			semaphore.tryAcquire();
-			System.out.println("I sleep");
-		}
-		
-		FoodItem food = storage.get();
-		
-		gui.updateStatusBar(storageMax, storage.size());
-		semaphore.release();
-		return food;
+	public void updateLabels(String name, int items, double weight, double volume, String status, String listString) {
+		gui.setConsumerLbls(name, items, weight, volume, status, listString);
 	}
-	
-	public static void main(String[] args) {
-		new Controller();
+
+	public void startProducer(int i) {
+		switch (i) {
+		case 1:
+			p1.startProducing();
+			break;
+
+		case 2:
+			p2.startProducing();
+			break;
+
+		case 3:
+			p3.startProducing();
+			break;
+		}
+	}
+
+	public void stopProducer(int i) {
+		switch (i) {
+		case 1:
+			p1.stopProducing();
+			break;
+
+		case 2:
+			p2.stopProducing();
+			break;
+
+		case 3:
+			p3.stopProducing();
+			break;
+		}
+	}
+
+	public void startConsumer(int i) {
+		switch (i) {
+		case 1:
+			c1.startConsuming();
+			break;
+		case 2:
+			c2.startConsuming();
+			break;
+		case 3:
+			c3.startConsuming();
+			break;
+		}
+	}
+
+	public void stopConsumer(int i) {
+		switch (i) {
+		case 1:
+			c1.stopConsuming();
+			break;
+		case 2:
+			c2.stopConsuming();
+			break;
+		case 3:
+			c3.stopConsuming();
+			break;
+		}
 	}
 }

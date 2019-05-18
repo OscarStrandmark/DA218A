@@ -4,15 +4,19 @@ import java.util.Random;
 
 public class Producer extends Thread {
 
-	private FoodItem[] foods;
-	private boolean producing = false;
-	private Controller controller;
-	private Random rand = new Random();
+	private Controller controller;	
+	private FoodItem[] items;
 	
-	public Producer(FoodItem[] arr, Controller controller) {
-		this.foods = arr;
+	private static final long SLEEP = 1000;
+	
+	private boolean producing;
+
+	public Producer(Controller controller, String name, FoodItem[] items) {
 		this.controller = controller;
+		this.items = items;
+		producing = false;
 		start();
+		setName(name);
 	}
 	
 	public void startProducing() {
@@ -22,16 +26,22 @@ public class Producer extends Thread {
 	public void stopProducing() {
 		producing = false;
 	}
-	
+
 	public void run() {
-		int i;
+		Random rand = new Random();
 		while(true) {
+			try {
+				Thread.sleep(SLEEP);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			if(producing) {
-				try { Thread.sleep(Controller.DELAY_PRODUCERS); } catch (Exception e) {}
-				i = rand.nextInt(foods.length);
-				controller.storagePut(foods[i]);
-			} else {
-				try { Thread.sleep(Controller.DELAY_PRODUCERS); } catch (Exception e) {}
+				try {
+					int i = rand.nextInt(items.length);
+					controller.storagePut(items[i]);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}
