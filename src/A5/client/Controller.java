@@ -1,4 +1,4 @@
-package Assignments.A5.client;
+package A5.client;
 
 public class Controller {
 	

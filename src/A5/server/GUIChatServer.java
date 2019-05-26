@@ -1,17 +1,22 @@
-package Assignments.A5.client;
+package A5.server;
 
-import java.awt.*;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+
+import A5.Message;
 
 /**
  * The GUI for assignment 5
  */
-public class GUIChatClient {
+public class GUIChatServer {
 	/**
 	 * These are the components you need to handle. You have to add listeners and/or
 	 * code
@@ -21,24 +26,18 @@ public class GUIChatClient {
 	private JButton btnSend; // Send text in txt
 	private JTextArea lstMsg; // The logger listbox
 
-	private Controller controller;
+	private Server server;
 	/**
 	 * Constructor
 	 */
-	public GUIChatClient(Controller controller) {	
-		this.controller = controller;
+	public GUIChatServer(Server server) {
+		this.server = server;
 		Start();
-		Listener l = new Listener();
-		btnSend.addActionListener(l);
-		frame.addWindowListener(l);
+		btnSend.addActionListener(new Listener());
 	}
-	
-	public void appendText(String message) {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				lstMsg.append(message + "\n");
-			}
-		});
+
+	public void append(String s) {
+		lstMsg.append(s + "\n");
 	}
 	
 	/**
@@ -49,7 +48,7 @@ public class GUIChatClient {
 		frame.setBounds(100, 100, 300, 300);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLayout(null);
-		frame.setTitle("Multi Chat Client"); // Change to "Multi Chat Server" on server part and vice versa
+		frame.setTitle("Multi Chat Server"); // Change to "Multi Chat Server" on server part and vice versa
 		InitializeGUI(); // Fill in components
 		frame.setVisible(true);
 		frame.setResizable(false); // Prevent user from change size
@@ -72,27 +71,16 @@ public class GUIChatClient {
 		pane.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		frame.add(pane);
 	}
-
-	private class Listener implements ActionListener,WindowListener {
+	
+	private class Listener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			if(e.getSource() == btnSend) {
 				String s = txt.getText();
 				if(s.length() > 0) {
-					controller.sendMessage(s);
+					server.message(new Message(s));
 					txt.setText("");
 				}
 			}
 		}
-
-		public void windowClosing(WindowEvent e) {
-			controller.disconnect();
-		}
-
-		public void windowOpened(WindowEvent e) {}
-		public void windowClosed(WindowEvent e) {}
-		public void windowIconified(WindowEvent e) {}
-		public void windowDeiconified(WindowEvent e) {}
-		public void windowActivated(WindowEvent e) {}
-		public void windowDeactivated(WindowEvent e) {}
 	}
 }

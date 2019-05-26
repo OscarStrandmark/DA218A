@@ -1,13 +1,13 @@
-package Assignments.A5.client;
+package A5.client;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-import Assignments.A5.Buffer;
-import Assignments.A5.Disconnect;
-import Assignments.A5.Message;
-import Assignments.A5.server.Server;
+import A5.Buffer;
+import A5.Disconnect;
+import A5.Message;
+import A5.server.Server;
 
 public class Connection {
 	

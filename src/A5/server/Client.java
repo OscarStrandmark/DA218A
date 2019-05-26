@@ -1,11 +1,11 @@
-package Assignments.A5.server;
+package A5.server;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-import Assignments.A5.Disconnect;
-import Assignments.A5.Message;
+import A5.Disconnect;
+import A5.Message;
 
 public class Client implements Runnable {
 
@@ -44,7 +44,6 @@ public class Client implements Runnable {
 				Object obj = ois.readObject();
 				
 				if(obj instanceof Message) {
-					System.out.println("???");
 					server.message((Message)obj);
 				}
 				

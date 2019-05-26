@@ -1,4 +1,4 @@
-package Assignments.A5.server;
+package A5.server;
 
 import java.net.BindException;
 import java.net.ServerSocket;
@@ -9,7 +9,7 @@ import java.util.concurrent.Executors;
 
 import javax.swing.JOptionPane;
 
-import Assignments.A5.Message;
+import A5.Message;
 
 public class Server extends Thread {
 

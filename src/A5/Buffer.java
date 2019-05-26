@@ -1,4 +1,4 @@
-package Assignments.A5;
+package A5;
 
 import java.util.LinkedList;
 
