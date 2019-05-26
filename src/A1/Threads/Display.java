@@ -1,8 +1,8 @@
-package Assignments.A1.threads;
+package A1.Threads;
 
 import java.util.Random;
 
-import Assignments.A1.Controller;
+import A1.Controller;
 
 public class Display extends Thread {
 

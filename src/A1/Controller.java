@@ -1,9 +1,9 @@
-package Assignments.A1;
+package A1;
 
 import java.awt.Polygon;
 
-import Assignments.A1.threads.Display;
-import Assignments.A1.threads.Triangle;
+import A1.Threads.Display;
+import A1.Threads.Triangle;
 
 public class Controller {
 	

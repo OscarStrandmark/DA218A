@@ -1,5 +1,10 @@
-package Assignments.A3;
+package A3;
 
+/**
+ * Class that represents a food. Ex. bread, cereal or ham.
+ * 
+ * @author Oscar Strandmark
+ */
 public class FoodItem {
 
 	private String name;

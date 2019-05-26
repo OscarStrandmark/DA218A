@@ -1,4 +1,4 @@
-package Assignments.A1;
+package A1;
 
 import java.awt.Color;
 import java.awt.Font;

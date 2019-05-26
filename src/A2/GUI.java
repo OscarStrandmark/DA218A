@@ -1,5 +1,5 @@
 
-package Assignments.A2;
+package A2;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;

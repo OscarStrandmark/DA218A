@@ -1,4 +1,4 @@
-package Assignments.A1.threads;
+package A1.Threads;
 
 public class Point {
 
