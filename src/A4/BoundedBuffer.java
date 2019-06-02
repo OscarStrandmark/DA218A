@@ -26,13 +26,13 @@ public class BoundedBuffer {
 		}
 	}
 	
-	//TODO: Skriv om alla metoder så dem följer mönstret nedan;
-	//TODO: Ta bort for-loop i trådar. Dem förstör allting
+	//TODO: Skriv om alla metoder sï¿½ dem fï¿½ljer mï¿½nstret nedan;
+	//TODO: Ta bort for-loop i trï¿½dar. Dem fï¿½rstï¿½r allting
 	/*
-	 * while(status är inte rätt){
+	 * while(status ï¿½r inte rï¿½tt){
 	 * 	wait();
 	 * } 
-	 * gör saken
+	 * gï¿½r saken
 	 * 
 	 */
 
@@ -53,6 +53,20 @@ public class BoundedBuffer {
 		}
 		return ret;
 	}
+	
+	public synchronized void write2(String s) {
+		try {
+			while(statusArr[writePos] != Status.Empty) {
+				wait();
+			}
+			storage[writePos] = s;
+			statusArr[writePos] = Status.New;
+			writePos = ((writePos + 1) % size);
+			notifyAll();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	public synchronized void check(String find, String replace) {
 		try {
@@ -71,6 +85,25 @@ public class BoundedBuffer {
 		}
 	}
 	
+	public synchronized boolean check2(String find, String replace) {
+		boolean found = false;
+		try {
+			while(statusArr[checkPos] != Status.New) {
+				wait();
+			}
+			if(storage[checkPos].contains(find)) {
+				storage[checkPos] = storage[checkPos].replace(find, replace);
+				found = true;
+			}
+			statusArr[checkPos] = Status.Checked;
+			checkPos = ((checkPos + 1) % size);
+			notifyAll();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return found;
+	}
+	
 	public synchronized String read() {
 		String s = null;
 		try {
@@ -81,6 +114,22 @@ public class BoundedBuffer {
 			} else {
 				wait();
 			}
+			notifyAll();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return s;
+	}
+	
+	public synchronized String read2() {
+		String s = null;
+		try {
+			while(statusArr[readPos] != Status.Checked) {
+				wait();
+			}
+			s = storage[readPos];
+			statusArr[readPos] = Status.Empty;
+			readPos = ((readPos + 1) % size);
 			notifyAll();
 		} catch (Exception e) {
 			e.printStackTrace();

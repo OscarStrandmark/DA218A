@@ -17,7 +17,7 @@ public class Reader extends Thread {
 	
 	public void run() {
 		for (int i = 0; i < size; i++) {
-			newText += buffer.read() + "\n";
+			newText += buffer.read2() + "\n";
 			controller.writeDestination(newText);
 		}
 	}

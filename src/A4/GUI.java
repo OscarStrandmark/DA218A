@@ -123,7 +123,7 @@ public class GUI {
 		btnClear.setBounds(465, 151, 230, 23);
 		frame.add(btnClear);
 
-		lblChanges = new JLabel("No. of Replacements:");
+		lblChanges = new JLabel("");
 		lblChanges.setBounds(279, 161, 200, 13);
 		frame.add(lblChanges);
 
@@ -167,7 +167,8 @@ public class GUI {
 			}
 			
 			if(e.getSource() == saveItem) {
-				
+				String[] arr = txtPaneDest.getText().split("\n");
+				controller.writeToFile(arr);
 			}
 			
 			if(e.getSource() == exitItem) {
@@ -176,10 +177,12 @@ public class GUI {
 			
 			if(e.getSource() == btnCreate) {
 				controller.replace(txtPaneSource.getText(),txtFind.getText(),txtReplace.getText(),txtPaneDest);
+				saveItem.setEnabled(true);
 			}
 			
 			if(e.getSource() == btnClear) {
-				txtPaneDest.setText("");
+				txtPaneDest.setText("");	
+				saveItem.setEnabled(false);
 			}
 		}
 	}
