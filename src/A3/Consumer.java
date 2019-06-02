@@ -10,9 +10,9 @@ public class Consumer extends Thread {
 	private static final long SLEEP = 1000;
 
 	//LIMITS 
-	private static final int     MAX_ITEMS = 50; 
-	private static final double MAX_WEIGHT = 100;
-	private static final double MAX_VOLUME = 75;
+	private static final int     MAX_ITEMS = 25; 
+	private static final double MAX_WEIGHT = 50;
+	private static final double MAX_VOLUME = 50;
 	
 	private static final long TAKE_DELAY = 1000;
 	private static final long FULL_SLEEP = 5000;
@@ -57,6 +57,9 @@ public class Consumer extends Thread {
 			while(consuming) {
 				list = new ArrayList<FoodItem>();
 				controller.updateLabels(getName(), 0, 0, 0, "", "");
+				items = 0;
+				weight = 0;
+				volume = 0;
 				while((items < MAX_ITEMS) && (weight < MAX_WEIGHT) && (volume < MAX_VOLUME)) { //while not full on items, weight or volume
 					try {
 						FoodItem item = controller.storageGet();

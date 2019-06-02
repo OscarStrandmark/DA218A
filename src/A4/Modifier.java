@@ -1,0 +1,26 @@
+package A4;
+
+public class Modifier extends Thread {
+
+	private String replace;
+	private String find;
+	
+	private BoundedBuffer buffer;
+	private int size;
+	
+	public Modifier(BoundedBuffer buffer, int size, String find, String replace) {
+		
+		this.replace = replace;
+		this.find = find;
+		
+		this.buffer = buffer;
+		this.size = size;
+		start();
+	}
+	
+	public void run() {
+		for (int i = 0; i < size; i++) {
+			buffer.check(find, replace);
+		}
+	}
+}

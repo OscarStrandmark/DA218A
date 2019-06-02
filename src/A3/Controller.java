@@ -23,15 +23,12 @@ public class Controller {
 	private Consumer c2; // COOP
 	private Consumer c3; // CITY GROSS
 
-	private Semaphore mutex;
-
 	private Buffer<FoodItem> storage;
 	private static final int MAX_SIZE = 50;
 	private GUI gui;
 
 	public Controller() {
 		gui = new GUI(this, MAX_SIZE);
-		mutex = new Semaphore(1, true);
 		storage = new Buffer<FoodItem>();
 
 		p1 = new Producer(this, "SCAN", items);
@@ -45,26 +42,13 @@ public class Controller {
 		c3 = new Consumer(this, "CITY GROSS", boxes[2]);
 	}
 
-	public void storagePut(FoodItem item) throws InterruptedException {
-		try {
-			mutex.acquire();
+	public void storagePut(FoodItem item) {
 			storage.put(item);
 			gui.setStored(storage.size());
-		} finally {
-			mutex.release();
-		}
 	}
 
-	public FoodItem storageGet() throws InterruptedException, NoSuchElementException {
-		FoodItem item;
-		try {
-			mutex.acquire();
-			item = storage.get();
-			gui.setStored(storage.size());
-		} finally {
-			mutex.release();
-		}
-		return item;
+	public FoodItem storageGet() {
+		return storage.get();
 	}
 	
 	public void updateLabels(String name, int items, double weight, double volume, String status, String listString) {
