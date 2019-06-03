@@ -142,6 +142,10 @@ public class GUI {
 		txtPaneSource.setText(text);
 	}
 	
+	public void setFoundCount(int i) {
+		lblChanges.setText("Matching snippets found: " + i);
+	}
+	
 	private void addListeners() {
 		ButtonListener listener = new ButtonListener();
 		openItem.addActionListener(listener);

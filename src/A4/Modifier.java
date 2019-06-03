@@ -24,7 +24,7 @@ public class Modifier extends Thread {
 	
 	public void run() {
 		for (int i = 0; i < size; i++) {
-			buffer.check2(find, replace);
+			buffer.check(find, replace);
 		}
 	}
 }

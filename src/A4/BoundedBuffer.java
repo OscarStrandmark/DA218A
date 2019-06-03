@@ -26,71 +26,28 @@ public class BoundedBuffer {
 		}
 	}
 	
-	//TODO: Skriv om alla metoder s� dem f�ljer m�nstret nedan;
-	//TODO: Ta bort for-loop i tr�dar. Dem f�rst�r allting
-	/*
-	 * while(status �r inte r�tt){
-	 * 	wait();
-	 * } 
-	 * g�r saken
-	 * 
-	 */
-
-	public synchronized boolean write(String s) {
-		boolean ret = false;
+	public synchronized void write(String s) {
 		try {
-			if (statusArr[writePos] == Status.Empty) {
-				storage[writePos] = s;
-				statusArr[writePos] = Status.New;
-				writePos = ((writePos + 1) % size);
-				ret = true;
-			} else {
+			while(statusArr[writePos] != Status.Empty) { //while current status is not correct, wait for changes.
 				wait();
 			}
-			notifyAll();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		return ret;
-	}
-	
-	public synchronized void write2(String s) {
-		try {
-			while(statusArr[writePos] != Status.Empty) {
-				wait();
-			}
+			//Write, set status and increase write position.
 			storage[writePos] = s;
 			statusArr[writePos] = Status.New;
 			writePos = ((writePos + 1) % size);
-			notifyAll();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	public synchronized void check(String find, String replace) {
-		try {
-			if(statusArr[checkPos] == Status.New) {
-				if(storage[checkPos].contains(find)) {
-					storage[checkPos] = storage[checkPos].replace(find, replace);
-				}
-				statusArr[checkPos] = Status.Checked;
-				checkPos = ((checkPos + 1) % size);
-			} else {
-				wait();
-			}
-			notifyAll();
+			notifyAll(); //Signal that changes are made.
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 	
-	public synchronized boolean check2(String find, String replace) {
+	public synchronized boolean check(String find, String replace) {
 		boolean found = false;
 		try {
-			while(statusArr[checkPos] != Status.New) {
+			while(statusArr[checkPos] != Status.New) { //while current status is not correct, wait for changes.
 				wait();
 			}
+			//If string contains text to find & replace, replace it.
 			if(storage[checkPos].contains(find)) {
 				storage[checkPos] = storage[checkPos].replace(find, replace);
 				found = true;
@@ -107,26 +64,10 @@ public class BoundedBuffer {
 	public synchronized String read() {
 		String s = null;
 		try {
-			if(statusArr[readPos] == Status.Checked) {
-				s = storage[readPos];
-				statusArr[readPos] = Status.Empty;
-				readPos = ((readPos + 1) % size);
-			} else {
+			while(statusArr[readPos] != Status.Checked) { //while current status is not correct, wait for changes.
 				wait();
 			}
-			notifyAll();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return s;
-	}
-	
-	public synchronized String read2() {
-		String s = null;
-		try {
-			while(statusArr[readPos] != Status.Checked) {
-				wait();
-			}
+			//Read, set status and increase read position.
 			s = storage[readPos];
 			statusArr[readPos] = Status.Empty;
 			readPos = ((readPos + 1) % size);

@@ -13,7 +13,7 @@ public class Writer extends Thread {
 	
 	public void run() {
 		for(String s : textToWrite) {
-			buffer.write2(s);
+			buffer.write(s);
 		}
 	}
 }
